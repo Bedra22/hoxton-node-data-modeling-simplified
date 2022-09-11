@@ -25,6 +25,10 @@ const getCompaniesById = db.prepare(`
 SELECT * FROM companies WHERE id=@id;
 `)
 
+const getEmployesById = db.prepare(`
+SELECT * FROM employees WHERE id=@id; 
+`)
+
 const getInterviewDoneByApplicants = db.prepare(`
 SELECT * FROM interviews WHERE applicantsId=@applicantsId;
 `)
@@ -74,6 +78,10 @@ INSERT or IGNORE INTO companies (name,city) VALUES (@name,@city);
 
 const updateInterview = db.prepare(`
 UPDATE interviews SET applicantsId=@applicantsId , interviewersId=@interviewersId , date=@date ,successful=@successful , score=@score WHERE id=@id;
+`)
+
+const fireEmployees = db.prepare(`
+DELETE FROM employees WHERE id=@id;
 `)
 
 app.get('/', (req, res) => {
@@ -235,7 +243,17 @@ app.patch('/interviews/:id', (req, res) => {
     }
 })
 
+app.delete('/employee/:id', (req, res) => {
 
+    const info = getEmployesById.get(req.params)
+    const fire = fireEmployees.run(info)
+
+    if (fire.changes) {
+        res.send({ approved: "Employee fired" })
+    } else {
+        res.status(404).send({ Notapproved: "Employee not fired" })
+    }
+})
 
 
 app.listen(port, () => {

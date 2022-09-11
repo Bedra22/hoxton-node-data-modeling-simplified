@@ -77,13 +77,15 @@ const employees = [
         email: "naile@gmail.com",
         position: "Menager",
         companyId: 1
-    }, {
+    },
+    {
         id: 1,
         name: "Ylvije Borici",
         email: "ylvije@gmail.com",
         position: "Menager",
         companyId: 2
-    }, {
+    },
+    {
         id: 1,
         name: "Edi Qehaja",
         email: "edi@gmail.com",
