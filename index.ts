@@ -69,7 +69,7 @@ INSERT INTO interviews (applicantsId,interviewersId, date, score) VALUES (@appli
 
 
 const addNewCompaniesTable = db.prepare(`
-INSERT or IGNORE INTO companies (id,name,city) VALUES (@id,@name,@city);
+INSERT or IGNORE INTO companies (name,city) VALUES (@name,@city);
 `)
 
 app.get('/', (req, res) => {
@@ -114,6 +114,29 @@ app.get('/companies/:id', (req, res) => {
         res.send(company)
     } else {
         res.status(404).send("Company not found")
+    }
+})
+
+app.post('/companies', (req, res) => {
+
+    let errors: string[] = []
+
+    if (typeof req.body.name != 'string') {
+        errors.push("Name not found or is not a string")
+    }
+
+    if (typeof req.body.city != 'string') {
+        errors.push("City not found or is not a string")
+    }
+
+    if (errors.length === 0) {
+        const info = addNewCompaniesTable.run(req.body)
+        const company = getCompaniesById.get({ id: info.lastInsertRowid })
+        company.interviewer = interviewersInCompany.all(company.id)
+        company.employee = employeesInCompany.all(company.id)
+        res.send(company)
+    } else {
+        res.status(404).send(errors)
     }
 })
 
