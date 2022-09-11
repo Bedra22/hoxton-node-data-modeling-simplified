@@ -24,30 +24,35 @@ const interviews = [
         applicantsId: 1,
         interviewersId: 1,
         date: "22/09/2022",
+        successful: 1,
         score: 7
     },
     {
         applicantsId: 1,
         interviewersId: 2,
         date: "18/06/2022",
+        successful: 0,
         score: 10
     },
     {
         applicantsId: 2,
         interviewersId: 2,
         date: "30/08/2022",
+        successful: 0,
         score: 9
     },
     {
         applicantsId: 3,
         interviewersId: 1,
         date: "02/09/2022",
+        successful: 0,
         score: 3
     },
     {
         applicantsId: 3,
         interviewersId: 2,
         date: "02/09/2022",
+        successful: 1,
         score: 8
     }
 ]
@@ -170,13 +175,17 @@ INSERT INTO interviewers (name,email,companyId) VALUES (@name,@email,@companyId)
 for (let interviewer of interviewers) addNewInterviewersInTable.run(interviewer)
 
 
-
+const deleteInterviewsTable = db.prepare(`
+DROP TABLE IF EXISTS interviews;
+`)
+deleteInterviewsTable.run()
 const createInterviewsTable = db.prepare(`
 CREATE TABLE IF NOT EXISTS interviews (
     id INTEGER,
     applicantsId INTEGER NOT NULL,
     interviewersId INTEGER NOT NULL,
     date TEXT,
+    successful INTEGER,
     score INTEGER,
     PRIMARY KEY (id),
     FOREIGN KEY (applicantsId) REFERENCES applicants(id) ON DELETE CASCADE,
@@ -185,7 +194,7 @@ CREATE TABLE IF NOT EXISTS interviews (
 `)
 createInterviewsTable.run()
 const addNewInterviewsInTable = db.prepare(`
-INSERT INTO interviews (applicantsId,interviewersId, date, score) VALUES (@applicantsId,@interviewersId,@date,@score)
+INSERT INTO interviews (applicantsId,interviewersId, date,successful, score) VALUES (@applicantsId,@interviewersId,@date,@successful,@score)
 `)
 for (let interview of interviews) addNewInterviewsInTable.run(interview)
 
