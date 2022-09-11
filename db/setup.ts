@@ -55,12 +55,14 @@ const interviewers = [
     {
         id: 1,
         name: "Ed",
-        email: "ed.putans@hoxton.com"
+        email: "ed.putans@hoxton.com",
+        companyId: 1
     },
     {
         id: 2,
         name: "Nicolas",
-        email: "nico.marcora@hoxton.com"
+        email: "nico.marcora@hoxton.com",
+        companyId: 2
     }
 ]
 const employees = [
@@ -69,19 +71,19 @@ const employees = [
         name: "Naile Bekteshi",
         email: "naile@gmail.com",
         position: "Menager",
-        companyId: 1,
+        companyId: 1
     }, {
         id: 1,
         name: "Ylvije Borici",
         email: "ylvije@gmail.com",
         position: "Menager",
-        companyId: 1,
+        companyId: 2
     }, {
         id: 1,
         name: "Edi Qehaja",
         email: "edi@gmail.com",
         position: "Menager",
-        companyId: 1,
+        companyId: 1
     }
 ]
 const companies = [
@@ -94,11 +96,6 @@ const companies = [
         id: 2,
         name: "Hoxton Group",
         city: "London"
-    },
-    {
-        id: 3,
-        name: "Borici Group",
-        city: "Tirana"
     }
 ]
 
@@ -121,49 +118,6 @@ const addNewApplicationInTable = db.prepare(`
 INSERT INTO applicants (name,email) VALUES (@name,@email)
 `)
 for (let applicant of applicants) addNewApplicationInTable.run(applicant)
-
-
-
-const deleteInterviewersTable = db.prepare(`
-DROP TABLE IF EXISTS interviewers;
-`)
-deleteInterviewersTable.run()
-const createInterviewersTable = db.prepare(`
-CREATE TABLE IF NOT EXISTS interviewers(
-    id INTEGER,
-    name TEXT,
-    email TEXT,
-    companyId INTEGER,
-    PRIMARY KEY (id),
-    FOREIGN KEY (companyId) REFERENCES companies (id) ON DELETE CASCADE
-);
-`)
-createInterviewersTable.run()
-const addNewInterviewersInTable = db.prepare(`
-INSERT INTO interviewers (name,email) VALUES (@name,@email)
-`)
-for (let interviewer of interviewers) addNewInterviewersInTable.run(interviewer)
-
-
-const createInterviewsTable = db.prepare(`
-CREATE TABLE IF NOT EXISTS interviews (
-    id INTEGER,
-    applicantsId INTEGER NOT NULL,
-    interviewersId INTEGER NOT NULL,
-    date TEXT,
-    score INTEGER,
-    PRIMARY KEY (id),
-    FOREIGN KEY (applicantsId) REFERENCES applicants(id) ON DELETE CASCADE,
-    FOREIGN KEY (interviewersId) REFERENCES interviewers(id) ON DELETE CASCADE
-);
-`)
-createInterviewsTable.run()
-const addNewInterviewsInTable = db.prepare(`
-INSERT INTO interviews (applicantsId,interviewersId, date, score) VALUES (@applicantsId,@interviewersId,@date,@score)
-`)
-for (let interview of interviews) addNewInterviewsInTable.run(interview)
-
-
 
 
 const dropCompaniesTable = db.prepare(`
@@ -191,6 +145,50 @@ const addNewCompaniesTable = db.prepare(`
 INSERT or IGNORE INTO companies (id,name,city) VALUES (@id,@name,@city);
 `)
 for (let company of companies) addNewCompaniesTable.run(company)
+
+
+
+
+const deleteInterviewersTable = db.prepare(`
+DROP TABLE IF EXISTS interviewers;
+`)
+deleteInterviewersTable.run()
+const createInterviewersTable = db.prepare(`
+CREATE TABLE IF NOT EXISTS interviewers(
+    id INTEGER,
+    name TEXT,
+    email TEXT,
+    companyId INTEGER NOT NULL,
+    PRIMARY KEY (id),
+    FOREIGN KEY (companyId) REFERENCES companies (id) ON DELETE CASCADE
+);
+`)
+createInterviewersTable.run()
+const addNewInterviewersInTable = db.prepare(`
+INSERT INTO interviewers (name,email,companyId) VALUES (@name,@email,@companyId)
+`)
+for (let interviewer of interviewers) addNewInterviewersInTable.run(interviewer)
+
+
+
+const createInterviewsTable = db.prepare(`
+CREATE TABLE IF NOT EXISTS interviews (
+    id INTEGER,
+    applicantsId INTEGER NOT NULL,
+    interviewersId INTEGER NOT NULL,
+    date TEXT,
+    score INTEGER,
+    PRIMARY KEY (id),
+    FOREIGN KEY (applicantsId) REFERENCES applicants(id) ON DELETE CASCADE,
+    FOREIGN KEY (interviewersId) REFERENCES interviewers(id) ON DELETE CASCADE
+);
+`)
+createInterviewsTable.run()
+const addNewInterviewsInTable = db.prepare(`
+INSERT INTO interviews (applicantsId,interviewersId, date, score) VALUES (@applicantsId,@interviewersId,@date,@score)
+`)
+for (let interview of interviews) addNewInterviewsInTable.run(interview)
+
 
 
 

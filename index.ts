@@ -21,6 +21,10 @@ const getInterviewById = db.prepare(`
 SELECT * FROM interviews WHERE id=@id;
 `)
 
+const getCompaniesById = db.prepare(`
+SELECT * FROM companies WHERE id=@id;
+`)
+
 const getInterviewDoneByApplicants = db.prepare(`
 SELECT * FROM interviews WHERE applicantsId=@applicantsId;
 `)
@@ -41,6 +45,15 @@ JOIN interviews ON applicants.id=interviews.applicantsId
 WHERE interviews.interviewersId=@interviewersId;
 `)
 
+const interviewersInCompany = db.prepare(`
+SELECT * FROM interviewers WHERE interviewers.companyId=?;
+`)
+
+const employeesInCompany = db.prepare(`
+SELECT * FROM employees WHERE employees.companyId=?;
+`)
+
+
 const addNewApplicationInTable = db.prepare(`
 INSERT INTO applicants (name,email) VALUES (@name,@email)
 `)
@@ -52,6 +65,11 @@ INSERT INTO interviewers (name,email) VALUES (@name,@email)
 
 const addNewInterviewsInTable = db.prepare(`
 INSERT INTO interviews (applicantsId,interviewersId, date, score) VALUES (@applicantsId,@interviewersId,@date,@score)
+`)
+
+
+const addNewCompaniesTable = db.prepare(`
+INSERT or IGNORE INTO companies (id,name,city) VALUES (@id,@name,@city);
 `)
 
 app.get('/', (req, res) => {
@@ -84,6 +102,21 @@ app.get('/interviewers/:id', (req, res) => {
         res.status(404).send("Interviewer not found")
     }
 })
+
+
+app.get('/companies/:id', (req, res) => {
+
+    const company = getCompaniesById.get(req.params)
+
+    if (company) {
+        company.interviewer = interviewersInCompany.all(company.id)
+        company.employee = employeesInCompany.all(company.id)
+        res.send(company)
+    } else {
+        res.status(404).send("Company not found")
+    }
+})
+
 
 app.post('/applicants', (req, res) => {
 
@@ -162,6 +195,8 @@ app.post('/interviews', (req, res) => {
         res.status(404).send(errors)
     }
 })
+
+
 
 
 app.listen(port, () => {
